@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: three-tier-app
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "password"
+            - name: MYSQL_USER
+              value: "test"
+            - name: MYSQL_PASSWORD
+              value: "password"
+            - name: MYSQL_DATABASE
+              value: "webappdb"
+          livenessProbe:
+            exec:
+              command:       #you exec command into or do it separately or use http get in the manifest this is used to do a command
+              - "mysqladmin"
+              - "ping"
+              - "-h"
+              - "mysql"
+              - "-u"
+              - "root"
+              - "--password=password"
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-storage
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-storage
+  namespace: three-tier-app
+spec:
+  storageClassName: default      # use Kubectl get storageclass first to get the storage class to use
+  capacity:
+    storage: 10Gi     # use the storage of the default,also here the pv will tell the storage volume what it wants 7g or 10gi
+  accessModes:    # then choose the access mode if its read and write
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete  # on the kubectl get storageclass the reclaim policy is delete
+  hostPath:  # here you can use aws volume or google volume ebs or efs 
+    path: "/var/lib/mysql"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: three-tier-app
+spec:
+  storageClassName: default
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: three-tier-app
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: mysql
