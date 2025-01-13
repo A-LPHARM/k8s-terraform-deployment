@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: 471112673321.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+        image: willywan/3tierfrontend:v1.0
         ports:
         - containerPort: 80
         readinessProbe:

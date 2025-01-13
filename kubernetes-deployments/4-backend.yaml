@@ -19,7 +19,7 @@ spec:
         command: ['sh', '-c', 'until nc -z mysql 3306; do echo waiting for mysql; sleep 3; done;']
       containers:
       - name: backend
-        image: 471112673321.dkr.ecr.us-east-1.amazonaws.com/backend:latest
+        image: willywan/3tierbackend:v1.0
         ports:
         - containerPort: 4000
         env:

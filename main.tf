@@ -40,7 +40,7 @@ resource "aws_eks_node_group" "k8s-node" {
     min_size     = 1
     }
     
-    instance_types = ["t3.micro"]
+    instance_types = ["t2.medium"]
     capacity_type  = "SPOT"
   
     
