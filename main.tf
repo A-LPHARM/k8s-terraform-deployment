@@ -7,7 +7,7 @@ resource "aws_eks_cluster" "k8s" {
   role_arn = aws_iam_role.controlplanerole.arn
 
   vpc_config {
-    subnet_ids = values(aws_subnet.private_subnet)[*].id
+    subnet_ids = values(aws_subnet.public_subnet)[*].id
   }
 
   depends_on = [
@@ -32,7 +32,7 @@ resource "aws_eks_node_group" "k8s-node" {
   version         = aws_eks_cluster.k8s.version
   release_version = nonsensitive(data.aws_ssm_parameter.eks_ami_release_version.value)
   node_role_arn   = aws_iam_role.workernode.arn
-  subnet_ids      = values(aws_subnet.private_subnet)[*].id
+  subnet_ids      = values(aws_subnet.public_subnet)[*].id
 
   scaling_config {
     desired_size = 1
